@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kantin Bu Rina - Kasir Ringan</title>
+    <style>
+        /* Reset & Variabel Warna Ringan */
+        :root {
+            --bg: #f5f5f4;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --primary: #065f46;
+            --primary-light: #d1fae5;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text); line-height: 1.4; }
+
+        /* Header Minimalis */
+        header {
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .pp-btn {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            border: 2px solid #fbbf24;
+            background: #fef3c7;
+            cursor: pointer;
+            padding: 2px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pp-btn:active { transform: scale(0.96); }
+        .brand-info h1 { font-size: 1.15rem; font-weight: 800; }
+        .brand-info p { font-size: 0.78rem; color: #a7f3d0; }
+        .pp-hint {
+            display: inline-block; margin-top: 3px; font-size: 0.7rem;
+            background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 99px; cursor: pointer;
+        }
+
+        /* Navigasi Tab */
+        nav { display: flex; gap: 6px; }
+        .tab-btn {
+            background: rgba(255,255,255,0.12);
+            color: #ecfdf5;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .tab-btn.active { background: #fff; color: var(--primary); font-weight: 700; }
+
+        /* Layout Utama */
+        main { max-width: 1140px; margin: 16px auto; padding: 0 14px; }
+        .hidden { display: none !important; }
+        .kasir-layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
+        @media (max-width: 820px) { .kasir-layout { grid-template-columns: 1fr; } }
+
+        /* Filter & Pencarian */
+        .toolbar {
+            background: var(--card); padding: 12px; border-radius: 14px;
+            border: 1px solid var(--border); margin-bottom: 14px;
+        }
+        .search-input {
+            width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+            border-radius: 10px; font-size: 0.9rem; margin-bottom: 10px;
+        }
+        .cat-pills { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+        .cat-btn {
+            padding: 6px 12px; border-radius: 99px; border: 1px solid var(--border);
+            background: #f8fafc; color: var(--text); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; white-space: nowrap;
+        }
+        .cat-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /* Grid Menu & Warna Kategori Kontras */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+        .menu-card {
+            background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+            border-top-width: 4px; padding: 12px;
+            display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+        }
+        .cat-Makanan { border-top-color: #e11d48; }
+        .cat-Minuman { border-top-color: #0284c7; }
+        .cat-Cemilan { border-top-color: #d97706; }
+        .cat-Paket   { border-top-color: #7c3aed; }
+
+        .badge {
+            display: inline-block; font-size: 0.68rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 6px; width: fit-content;
+        }
+        .badge-Makanan { background: #ffe4e6; color: #be123c; }
+        .badge-Minuman { background: #e0f2fe; color: #0369a1; }
+        .badge-Cemilan { background: #fef3c7; color: #b45309; }
+        .badge-Paket   { background: #ede9fe; color: #6d28d9; }
+
+        .menu-title { font-size: 0.95rem; font-weight: 700; margin-top: 4px; }
+        .menu-price { font-size: 0.92rem; font-weight: 800; color: var(--primary); }
+        .variant-select {
+            width: 100%; padding: 6px 8px; border-radius: 8px;
+            border: 1px solid var(--border); background: #f8fafc; font-size: 0.78rem;
+        }
+        .add-btn {
+            width: 100%; padding: 8px; border: none; border-radius: 9px;
+            background: var(--primary-light); color: var(--primary);
+            font-weight: 700; font-size: 0.82rem; cursor: pointer;
+        }
+        .add-btn:hover { background: var(--primary); color: #fff; }
+
+        /* Panel Keranjang */
+        .cart-box {
+            background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+            padding: 14px; position: sticky; top: 14px;
+        }
+        .cart-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+        }
+        .cart-items { max-height: 270px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+            padding-bottom: 8px; border-bottom: 1px dashed var(--border); font-size: 0.84rem;
+        }
+        .qty-ctrl { display: flex; align-items: center; gap: 6px; }
+        .qty-btn {
+            width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border);
+            background: #f1f5f9; font-weight: 700; cursor: pointer;
+        }
+
+        /* Pembayaran */
+        .pay-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+        .row-between { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
+        .total-row { font-size: 1.05rem; font-weight: 800; color: var(--primary); }
+        .input-sm { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; font-size: 0.85rem; }
+        .method-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .method-btn {
+            padding: 7px; border-radius: 9px; border: 1px solid var(--border);
+            background: #f8fafc; font-weight: 600; font-size: 0.82rem; cursor: pointer;
+        }
+        .method-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .quick-cash { display: flex; gap: 4px; flex-wrap: wrap; }
+        .quick-btn {
+            padding: 4px 8px; font-size: 0.74rem; border-radius: 6px;
+            border: 1px solid var(--border); background: #fff; cursor: pointer;
+        }
+        .checkout-btn {
+            width: 100%; padding: 11px; border: none; border-radius: 10px;
+            background: var(--primary); color: #fff; font-weight: 700; font-size: 0.92rem; cursor: pointer;
+        }
+        .checkout-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Card Umum untuk Riwayat & Kelola Menu */
+        .panel-card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 16px; margin-bottom: 14px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-top: 10px; }
+        th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; font-weight: 700; color: var(--muted); }
+        .btn-danger { background: #fee2e2; color: #b91c1c; border: none; padding: 5px 9px; border-radius: 7px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 10px; }
+
+        /* Modal Struk & Notifikasi */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+            display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+        }
+        .receipt-card { background: #fff; width: 100%; max-width: 330px; border-radius: 14px; padding: 18px; }
+        .receipt-divider { border-top: 1px dashed #94a3b8; margin: 10px 0; }
+        .toast {
+            position: fixed; bottom: 16px; right: 16px; background: #1e293b; color: #fff;
+            padding: 9px 14px; border-radius: 10px; font-size: 0.82rem; z-index: 60;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #receipt-print, #receipt-print * { visibility: visible; }
+            #receipt-print { position: fixed; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Minimalis dengan PP Interaktif (3 Gaya Pilihan) -->
+    <header>
+        <div class="brand">
+            <button type="button" class="pp-btn" onclick="cycleAvatar()" title="Klik untuk ganti PP Kantin">
+                <div id="header-pp" style="width:100%;height:100%;"></div>
+            </button>
+            <div class="brand-info">
+                <h1>Kantin Bu Rina</h1>
+                <p>Kasir & Pemesanan Cepat • <span id="pp-label">PP: Bu Rina</span></p>
+                <span class="pp-hint" onclick="cycleAvatar()">🔄 Klik PP untuk ganti gaya (3 pilihan)</span>
+            </div>
+        </div>
+        <nav>
+            <button class="tab-btn active" id="tab-kasir" onclick="switchTab('kasir')">Kasir</button>
+            <button class="tab-btn" id="tab-riwayat" onclick="switchTab('riwayat')">Riwayat (<span id="count-trx">0</span>)</button>
+            <button class="tab-btn" id="tab-kelola" onclick="switchTab('kelola')">Kelola Menu</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- TAB 1: KASIR & PEMESANAN -->
+        <section id="view-kasir" class="kasir-layout">
+            <div>
+                <div class="toolbar">
+                    <input type="text" id="search-input" class="search-input" placeholder="Cari menu makanan atau minuman..." oninput="renderMenus()">
+                    <div class="cat-pills">
+                        <button class="cat-btn active" data-cat="Semua" onclick="filterCategory('Semua')">Semua</button>
+                        <button class="cat-btn" data-cat="Makanan" onclick="filterCategory('Makanan')">🔴 Makanan</button>
+                        <button class="cat-btn" data-cat="Minuman" onclick="filterCategory('Minuman')">🔵 Minuman</button>
+                        <button class="cat-btn" data-cat="Cemilan" onclick="filterCategory('Cemilan')">🟡 Cemilan</button>
+                        <button class="cat-btn" data-cat="Paket" onclick="filterCategory('Paket')">🟣 Paket</button>
+                    </div>
+                </div>
+                <div id="menu-grid" class="menu-grid"></div>
+            </div>
+
+            <!-- Keranjang Belanja -->
+            <aside class="cart-box">
+                <div class="cart-header">
+                    <strong>🛒 Keranjang (<span id="cart-qty">0</span>)</strong>
+                    <button type="button" class="btn-danger" id="btn-reset-cart" onclick="clearCart()">Kosongkan</button>
+                </div>
+                <div id="cart-items" class="cart-items">
+                    <p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:20px 0;">Belum ada pesanan.</p>
+                </div>
+
+                <div class="pay-section">
+                    <input type="text" id="customer-name" class="input-sm" placeholder="Nama Pembeli (opsional)">
+                    <div class="method-group">
+                        <button type="button" id="m-tunai" class="method-btn active" onclick="setMethod('Tunai')">💵 Tunai</button>
+                        <button type="button" id="m-qris" class="method-btn" onclick="setMethod('QRIS')">📱 QRIS</button>
+                    </div>
+
+                    <div class="row-between total-row">
+                        <span>Total Bayar</span>
+                        <span id="cart-total">Rp 0</span>
+                    </div>
+
+                    <div id="cash-area">
+                        <input type="number" id="cash-paid" class="input-sm" placeholder="Uang Tunai Diterima (Rp)" oninput="updateChange()">
+                        <div class="quick-cash" style="margin-top:6px;">
+                            <button type="button" class="quick-btn" onclick="setCash('exact')">Uang Pas</button>
+                            <button type="button" class="quick-btn" onclick="setCash(10000)">10rb</button>
+                            <button type="button" class="quick-btn" onclick="setCash(20000)">20rb</button>
+                            <button type="button" class="quick-btn" onclick="setCash(50000)">50rb</button>
+                        </div>
+                        <div class="row-between" style="margin-top:8px;">
+                            <span style="color:var(--muted);">Kembalian</span>
+                            <strong id="cash-change">Rp 0</strong>
+                        </div>
+                    </div>
+
+                    <div id="qris-area" class="hidden" style="background:#f0f9ff;padding:8px;border-radius:8px;font-size:0.78rem;color:#0369a1;text-align:center;">
+                        Scan QRIS Kantin Bu Rina sesuai nominal total.
+                    </div>
+
+                    <button type="button" id="btn-pay" class="checkout-btn" disabled onclick="checkout()">Proses Bayar</button>
+                </div>
+            </aside>
+        </section>
+
+        <!-- TAB 2: RIWAYAT TRANSAKSI -->
+        <section id="view-riwayat" class="hidden">
+            <div class="panel-card">
+                <div class="row-between">
+                    <div>
+                        <h2 style="font-size:1.05rem;">Riwayat Transaksi</h2>
+                        <p style="font-size:0.82rem;color:var(--muted);">Total Pemasukan: <strong id="total-income" style="color:var(--primary);">Rp 0</strong></p>
+                    </div>
+                    <button type="button" class="btn-danger" onclick="clearHistory()">Hapus Riwayat</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Waktu & ID</th>
+                                <th>Pembeli</th>
+                                <th>Pesanan</th>
+                                <th>Metode</th>
+                                <th>Total</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: KELOLA MENU -->
+        <section id="view-kelola" class="hidden">
+            <div class="panel-card">
+                <h2 style="font-size:1.05rem;">Tambah Menu Baru</h2>
+                <form onsubmit="addMenu(event)" class="form-grid">
+                    <input type="text" id="new-name" class="input-sm" placeholder="Nama Menu (cth: Nasi Kuning)" required>
+                    <select id="new-cat" class="input-sm">
+                        <option value="Makanan">Makanan (Merah)</option>
+                        <option value="Minuman">Minuman (Biru)</option>
+                        <option value="Cemilan">Cemilan (Kuning)</option>
+                        <option value="Paket">Paket (Ungu)</option>
+                    </select>
+                    <input type="number" id="new-price" class="input-sm" placeholder="Harga (Rp)" min="500" step="500" required>
+                    <select id="new-var" class="input-sm">
+                        <option value="pedas">Varian: Level Pedas</option>
+                        <option value="suhu">Varian: Es / Hangat</option>
+                        <option value="porsi">Varian: Porsi Biasa / Jumbo</option>
+                        <option value="none">Tanpa Varian</option>
+                    </select>
+                    <button type="submit" class="checkout-btn" style="padding:8px;">+ Simpan Menu</button>
+                </form>
+            </div>
+
+            <div class="panel-card">
+                <div class="row-between">
+                    <h2 style="font-size:1.05rem;">Daftar Menu Aktif</h2>
+                    <button type="button" class="quick-btn" onclick="resetMenus()">Reset 10 Menu Awal</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nama Menu</th>
+                                <th>Kategori</th>
+                                <th>Varian</th>
+                                <th>Harga</th>
+                                <th>Hapus</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL STRUK SEDERHANA -->
+    <div id="receipt-modal" class="modal-backdrop hidden">
+        <div class="receipt-card">
+            <div id="receipt-print">
+                <div style="text-align:center;">
+                    <div id="receipt-pp" style="width:44px;height:44px;margin:0 auto 6px;"></div>
+                    <strong style="font-size:1rem;">KANTIN BU RINA</strong>
+                    <p style="font-size:0.74rem;color:#64748b;" id="r-meta"></p>
+                </div>
+                <div class="receipt-divider"></div>
+                <div style="font-size:0.78rem;">
+                    <div>Pembeli: <strong id="r-cust"></strong></div>
+                    <div>Metode: <strong id="r-method"></strong></div>
+                </div>
+                <div class="receipt-divider"></div>
+                <div id="r-items" style="font-size:0.8rem;display:flex;flex-direction:column;gap:5px;"></div>
+                <div class="receipt-divider"></div>
+                <div style="font-size:0.84rem;">
+                    <div class="row-between"><strong>TOTAL</strong><strong id="r-total"></strong></div>
+                    <div id="r-cash-info" style="margin-top:4px;font-size:0.78rem;color:#475569;">
+                        <div class="row-between"><span>Tunai</span><span id="r-paid"></span></div>
+                        <div class="row-between"><span>Kembalian</span><span id="r-change"></span></div>
+                    </div>
+                </div>
+                <p style="text-align:center;font-size:0.74rem;color:#64748b;margin-top:12px;">Terima kasih sudah jajan!</p>
+            </div>
+            <div class="no-print" style="display:flex;gap:8px;margin-top:14px;">
+                <button type="button" class="checkout-btn" onclick="window.print()">Cetak Struk</button>
+                <button type="button" class="method-btn" style="padding:0 14px;" onclick="closeReceipt()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        // 1. Tiga Pilihan PP SVG Ringan
+        const AVATARS = [
+            {
+                name: 'Bu Rina',
+                svg: `<svg viewBox="0 0 64 64" width="100%" height="100%"><rect width="64" height="64" rx="12" fill="#fef3c7"/><path d="M14 62c0-14 36-14 36 0z" fill="#059669"/><circle cx="32" cy="30" r="15" fill="#10b981"/><circle cx="32" cy="31" r="10" fill="#fdba74"/><circle cx="28" cy="29" r="1.5" fill="#1e293b"/><circle cx="36" cy="29" r="1.5" fill="#1e293b"/><path d="M28 35q4 4 8 0" stroke="#9a3412" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="23" y="13" width="18" height="4" rx="2" fill="#f59e0b"/></svg>`
+            },
+            {
+                name: 'Mangkuk Hangat',
+                svg: `<svg viewBox="0 0 64 64" width="100%" height="100%"><rect width="64" height="64" rx="12" fill="#ffe4e6"/><path d="M14 34h36c-2 13-10 18-18 18s-16-5-18-18z" fill="#e11d48"/><path d="M24 26q-2-5 0-9M32 25q-2-5 0-9M40 26q-2-5 0-9" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>`
+            },
+            {
+                name: 'Es Kopi Segar',
+                svg: `<svg viewBox="0 0 64 64" width="100%" height="100%"><rect width="64" height="64" rx="12" fill="#e0f2fe"/><rect x="35" y="10" width="4" height="16" rx="2" fill="#e11d48"/><polygon points="20,24 44,24 40,54 24,54" fill="#0284c7"/><polygon points="22,34 42,34 40,54 24,54" fill="#92400e"/></svg>`
+            }
+        ];
+
+        // 2. Opsi Varian Ringkas
+        const VARIANTS = {
+            pedas: ['Tidak Pedas', 'Sedang', 'Pedas (+Rp 0)', 'Extra Pedas'],
+            suhu: ['Dingin / Es', 'Hangat', 'Less Sugar'],
+            porsi: ['Porsi Biasa', 'Porsi Jumbo'],
+            none: []
+        };
+
+        // 3. 10 Menu Favorit Kantin Indonesia
+        const DEFAULT_MENUS = [
+            { id: '1', name: 'Nasi Ayam Geprek', cat: 'Makanan', price: 15000, emoji: '🍗', varType: 'pedas' },
+            { id: '2', name: 'Nasi Goreng Kampung', cat: 'Makanan', price: 14000, emoji: '🍛', varType: 'pedas' },
+            { id: '3', name: 'Soto Ayam Lamongan', cat: 'Makanan', price: 12000, emoji: '🍲', varType: 'pedas' },
+            { id: '4', name: 'Bakso Urat Komplit', cat: 'Makanan', price: 14000, emoji: '🥣', varType: 'pedas' },
+            { id: '5', name: 'Es Teh Manis', cat: 'Minuman', price: 4000, emoji: '🧊', varType: 'suhu' },
+            { id: '6', name: 'Es Jeruk Peras', cat: 'Minuman', price: 6000, emoji: '🍊', varType: 'suhu' },
+            { id: '7', name: 'Kopi Susu Gula Aren', cat: 'Minuman', price: 10000, emoji: '🧋', varType: 'suhu' },
+            { id: '8', name: 'Tempe Mendoan (3 pcs)', cat: 'Cemilan', price: 5000, emoji: '🥙', varType: 'porsi' },
+            { id: '9', name: 'Risol Mayo Smoked Beef', cat: 'Cemilan', price: 4500, emoji: '🌯', varType: 'porsi' },
+            { id: '10', name: 'Paket Geprek + Es Teh', cat: 'Paket', price: 17000, emoji: '🎁', varType: 'pedas' }
+        ];
+
+        // State Aplikasi
+        let menus = JSON.parse(localStorage.getItem('kbr_lite_menus')) || [...DEFAULT_MENUS];
+        let transactions = JSON.parse(localStorage.getItem('kbr_lite_trx')) || [];
+        let avatarIdx = parseInt(localStorage.getItem('kbr_lite_pp') || '0', 10) % AVATARS.length;
+        let cart = [];
+        let activeCategory = 'Semua';
+        let payMethod = 'Tunai';
+
+        const rp = (n) => 'Rp ' + Number(n).toLocaleString('id-ID');
+
+        function notify(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            clearTimeout(window._t);
+            window._t = setTimeout(() => el.classList.add('hidden'), 2000);
+        }
+
+        // Render PP Header & Struk
+        function renderAvatar() {
+            const av = AVATARS[avatarIdx];
+            document.getElementById('header-pp').innerHTML = av.svg;
+            document.getElementById('receipt-pp').innerHTML = av.svg;
+            document.getElementById('pp-label').textContent = 'PP: ' + av.name;
+        }
+
+        function cycleAvatar() {
+            avatarIdx = (avatarIdx + 1) % AVATARS.length;
+            localStorage.setItem('kbr_lite_pp', avatarIdx);
+            renderAvatar();
+            notify('PP diganti ke: ' + AVATARS[avatarIdx].name);
+        }
+
+        // Navigasi Tab
+        function switchTab(tab) {
+            ['kasir', 'riwayat', 'kelola'].forEach(t => {
+                document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
+                document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+            });
+            if (tab === 'riwayat') renderHistory();
+            if (tab === 'kelola') renderManage();
+        }
+
+        // Filter & Render Katalog Menu
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.cat === cat);
+            });
+            renderMenus();
+        }
+
+        function renderMenus() {
+            const q = document.getElementById('search-input').value.toLowerCase().trim();
+            const list = menus.filter(m =>
+                (activeCategory === 'Semua' || m.cat === activeCategory) &&
+                m.name.toLowerCase().includes(q)
+            );
+
+            const grid = document.getElementById('menu-grid');
+            if (!list.length) {
+                grid.innerHTML = '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:24px;">Menu tidak ditemukan.</p>';
+                return;
+            }
+
+            grid.innerHTML = list.map(m => {
+                const opts = VARIANTS[m.varType] || [];
+                const selectHtml = opts.length
+                    ? `<select id="var-${m.id}" class="variant-select">${opts.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`
+                    : `<div style="height:29px;font-size:0.75rem;color:var(--muted);display:flex;align-items:center;">Varian standar</div>`;
+
+                return `
+                    <div class="menu-card cat-${m.cat}">
+                        <div>
+                            <span class="badge badge-${m.cat}">${m.cat}</span>
+                            <div class="menu-title">${m.emoji} ${m.name}</div>
+                            <div class="menu-price">${rp(m.price)}</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            ${selectHtml}
+                            <button type="button" class="add-btn" onclick="addToCart('${m.id}')">+ Tambah</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Keranjang Belanja
+        function addToCart(menuId) {
+            const m = menus.find(x => x.id === menuId);
+            if (!m) return;
+            const sel = document.getElementById('var-' + menuId);
+            const variant = sel ? sel.value : '';
+            const key = menuId + '|' + variant;
+
+            const found = cart.find(c => c.key === key);
+            if (found) found.qty += 1;
+            else cart.push({ key, id: m.id, name: m.name, price: m.price, variant, qty: 1 });
+
+            renderCart();
+            notify(m.name + ' masuk keranjang');
+        }
+
+        function changeQty(key, delta) {
+            const idx = cart.findIndex(c => c.key === key);
+            if (idx === -1) return;
+            cart[idx].qty += delta;
+            if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            renderCart();
+        }
+
+        function clearCart() {
+            cart = [];
+            document.getElementById('cash-paid').value = '';
+            renderCart();
+        }
+
+        function getTotal() {
+            return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+        }
+
+        function renderCart() {
+            const box = document.getElementById('cart-items');
+            const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cart-qty').textContent = totalQty;
+            document.getElementById('cart-total').textContent = rp(getTotal());
+
+            if (!cart.length) {
+                box.innerHTML = '<p style="color:var(--muted);font-size:0.84rem;text-align:center;padding:20px 0;">Belum ada pesanan.</p>';
+            } else {
+                box.innerHTML = cart.map(c => {
+                    const safeKey = c.key.replace(/'/g, "\\'");
+                    return `
+                        <div class="cart-item">
+                            <div>
+                                <strong>${c.name}</strong>
+                                ${c.variant ? `<div style="font-size:0.74rem;color:var(--muted);">${c.variant}</div>` : ''}
+                                <div style="font-size:0.78rem;color:var(--primary);font-weight:700;">${rp(c.price)}</div>
+                            </div>
+                            <div class="qty-ctrl">
+                                <button type="button" class="qty-btn" onclick="changeQty('${safeKey}', -1)">-</button>
+                                <strong>${c.qty}</strong>
+                                <button type="button" class="qty-btn" onclick="changeQty('${safeKey}', 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            updateChange();
+        }
+
+        function setMethod(m) {
+            payMethod = m;
+            document.getElementById('m-tunai').classList.toggle('active', m === 'Tunai');
+            document.getElementById('m-qris').classList.toggle('active', m === 'QRIS');
+            document.getElementById('cash-area').classList.toggle('hidden', m !== 'Tunai');
+            document.getElementById('qris-area').classList.toggle('hidden', m !== 'QRIS');
+            updateChange();
+        }
+
+        function setCash(val) {
+            document.getElementById('cash-paid').value = val === 'exact' ? getTotal() : val;
+            updateChange();
+        }
+
+        function updateChange() {
+            const total = getTotal();
+            const btn = document.getElementById('btn-pay');
+            const chEl = document.getElementById('cash-change');
+
+            if (!cart.length) {
+                btn.disabled = true;
+                chEl.textContent = 'Rp 0';
+                return;
+            }
+            if (payMethod === 'QRIS') {
+                btn.disabled = false;
+                return;
+            }
+            const paid = Number(document.getElementById('cash-paid').value) || 0;
+            const diff = paid - total;
+            if (diff >= 0) {
+                chEl.textContent = rp(diff);
+                chEl.style.color = '#059669';
+                btn.disabled = false;
+            } else {
+                chEl.textContent = 'Kurang ' + rp(Math.abs(diff));
+                chEl.style.color = '#dc2626';
+                btn.disabled = true;
+            }
+        }
+
+        function checkout() {
+            if (!cart.length) return;
+            const total = getTotal();
+            const cust = document.getElementById('customer-name').value.trim() || 'Pelanggan Umum';
+            const paid = payMethod === 'Tunai' ? Number(document.getElementById('cash-paid').value) : total;
+            const change = payMethod === 'Tunai' ? paid - total : 0;
+
+            const trx = {
+                id: 'KBR-' + String(transactions.length + 1).padStart(3, '0'),
+                time: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+                cust,
+                method: payMethod,
+                items: JSON.parse(JSON.stringify(cart)),
+                total,
+                paid,
+                change
+            };
+
+            transactions.unshift(trx);
+            localStorage.setItem('kbr_lite_trx', JSON.stringify(transactions));
+            document.getElementById('count-trx').textContent = transactions.length;
+
+            showReceipt(trx);
+            clearCart();
+            document.getElementById('customer-name').value = '';
+        }
+
+        function showReceipt(trx) {
+            document.getElementById('r-meta').textContent = `#${trx.id} • ${trx.time}`;
+            document.getElementById('r-cust').textContent = trx.cust;
+            document.getElementById('r-method').textContent = trx.method;
+            document.getElementById('r-total').textContent = rp(trx.total);
+            document.getElementById('r-items').innerHTML = trx.items.map(i => `
+                <div class="row-between">
+                    <span>${i.name}${i.variant ? ' (' + i.variant + ')' : ''} x${i.qty}</span>
+                    <strong>${rp(i.price * i.qty)}</strong>
+                </div>
+            `).join('');
+
+            const cashInfo = document.getElementById('r-cash-info');
+            if (trx.method === 'Tunai') {
+                cashInfo.classList.remove('hidden');
+                document.getElementById('r-paid').textContent = rp(trx.paid);
+                document.getElementById('r-change').textContent = rp(trx.change);
+            } else {
+                cashInfo.classList.add('hidden');
+            }
+            document.getElementById('receipt-modal').classList.remove('hidden');
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.add('hidden');
+        }
+
+        // Riwayat Transaksi
+        function renderHistory() {
+            document.getElementById('count-trx').textContent = transactions.length;
+            const income = transactions.reduce((s, t) => s + t.total, 0);
+            document.getElementById('total-income').textContent = rp(income);
+
+            const tbody = document.getElementById('history-tbody');
+            if (!transactions.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);">Belum ada transaksi.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td><strong>#${t.id}</strong><br><small style="color:var(--muted);">${t.time}</small></td>
+                    <td>${t.cust}</td>
+                    <td>${t.items.map(i => `${i.name} (${i.qty}x)`).join(', ')}</td>
+                    <td>${t.method}</td>
+                    <td><strong>${rp(t.total)}</strong></td>
+                    <td><button type="button" class="quick-btn" onclick='showReceipt(${JSON.stringify(t)})'>Struk</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function clearHistory() {
+            transactions = [];
+            localStorage.setItem('kbr_lite_trx', '[]');
+            renderHistory();
+            notify('Riwayat dihapus');
+        }
+
+        // Kelola Menu
+        function addMenu(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-name').value.trim();
+            const cat = document.getElementById('new-cat').value;
+            const price = Number(document.getElementById('new-price').value);
+            const varType = document.getElementById('new-var').value;
+            const emojiMap = { Makanan: '🍛', Minuman: '🥤', Cemilan: '🥟', Paket: '🎁' };
+
+            menus.unshift({ id: String(Date.now()), name, cat, price, emoji: emojiMap[cat] || '🍽️', varType });
+            localStorage.setItem('kbr_lite_menus', JSON.stringify(menus));
+            e.target.reset();
+            renderMenus();
+            renderManage();
+            notify('Menu ditambahkan');
+        }
+
+        function deleteMenu(id) {
+            menus = menus.filter(m => m.id !== id);
+            localStorage.setItem('kbr_lite_menus', JSON.stringify(menus));
+            renderMenus();
+            renderManage();
+            notify('Menu dihapus');
+        }
+
+        function resetMenus() {
+            menus = [...DEFAULT_MENUS];
+            localStorage.setItem('kbr_lite_menus', JSON.stringify(menus));
+            renderMenus();
+            renderManage();
+            notify('10 menu awal dipulihkan');
+        }
+
+        function renderManage() {
+            document.getElementById('manage-tbody').innerHTML = menus.map(m => `
+                <tr>
+                    <td>${m.emoji} <strong>${m.name}</strong></td>
+                    <td><span class="badge badge-${m.cat}">${m.cat}</span></td>
+                    <td>${m.varType}</td>
+                    <td>${rp(m.price)}</td>
+                    <td><button type="button" class="btn-danger" onclick="deleteMenu('${m.id}')">Hapus</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // Inisialisasi
+        renderAvatar();
+        renderMenus();
+        renderCart();
+        document.getElementById('count-trx').textContent = transactions.length;
+    </script>
+</body>
+</html>
